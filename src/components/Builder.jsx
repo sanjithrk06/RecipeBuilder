@@ -91,7 +91,7 @@ const Builder = () => {
             <button onClick={handleReset} className="bg-blue-600  text-white p-2 px-4 py-1 pb-1 w-auto rounded-lg flex items-center font-medium text-base">
               Save
             </button>
-            <button onClick={handleUndo} className="bg-white text-black p-2 rounded-lg  text-lg">
+            <button className="bg-white text-black p-2 rounded-lg  text-lg">
               <HiDotsVertical />
             </button>
             
