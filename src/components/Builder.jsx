@@ -67,8 +67,8 @@ const Builder = () => {
     <div className="w-2/4  bg-white border border-gray-300 rounded-3xl m-2 p-4 ">
       <div className="flex-1 flex flex-col items-center justify-center h-full">
         
-        <div className="flex justify-between gap-3 w-full h-[10%] px-2 py-4">
-          <div className=" item-left flex flex-row gap-0">
+        <div className="flex justify-end gap-3 w-full h-[10%] px-2 py-4">
+          {/* <div className=" item-left flex flex-row gap-0">
           <button
             onClick={() => handleButtonClick('Build')}
             className={`bg-white border border-gray-700 text-black p-2 px-4 w-auto rounded-lg rounded-e-none flex items-center font-medium text-base ${
@@ -86,10 +86,10 @@ const Builder = () => {
             Test
           </button>
             
-          </div>
-          <div className=" item-right flex flex-row gap-2">
+          </div> */}
+          <div className=" flex flex-row gap-2">
             <button onClick={handleReset} className="bg-blue-600  text-white p-2 px-4 py-1 pb-1 w-auto rounded-lg flex items-center font-medium text-base">
-              Deploy
+              Save
             </button>
             <button onClick={handleUndo} className="bg-white text-black p-2 rounded-lg  text-lg">
               <HiDotsVertical />
@@ -102,7 +102,7 @@ const Builder = () => {
           ref={drop}
           className={`flex items-center bg-[url('../assets/bg.jpg')] bg-cover bg-center justify-center border-2 border-dashed rounded-2xl ${isOver ? 'border-blue-500' : 'border-gray-300'} w-full h-[90%] `}
         >
-          <div className="p-4 pt-0 w-4/5 h-[90%] " style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center' }}>
+          <div className="p-4 pt-0 w-[95%] h-[90%] " style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center' }}>
             {droppedItems.length < 1 && (
               <div className="flex flex-col items-center justify-center h-full">
                 <FaPlusCircle className="text-gray-400 text-6xl mb-4" />
@@ -112,11 +112,14 @@ const Builder = () => {
             {droppedItems.length > 0 && (
               <>
                 <p className="text-center text-3xl font-bold m-2">Ingredients</p>
-                <div className="mt-6 grid grid-cols-2 gap-5">
+                <div className="mt-6 grid grid-cols-5 gap-5">
                   {droppedItems.map((item, index) => (
-                    <div key={index} className="flex items-center justify-center bg-gray-200 gap-5 rounded-3xl">
-                      <img src={item.image} alt={item.name} className="w-14 h-14 object-cover rounded-2xl m-2" />
-                      <p className="m-4 ml-0 pl-0">{item.name}</p>
+                    <div key={index} className="flex flex-col justify-center items-center">
+                      <div className="flex flex-col items-center justify-center bg-gray-200 gap-3 rounded-3xl w-full p-2 pt-0">
+                        <img src={item.image} alt={item.name} className="w-[95%] h-28 object-cover rounded-2xl m-2 mb-0" />
+                        <p className="text-center">{item.name}</p>
+                      </div>
+                      <p className="font-semibold text-base m-2">STEP-{index + 1}</p>
                     </div>
                   ))}
                 </div>
