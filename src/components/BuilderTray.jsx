@@ -173,7 +173,7 @@ const BuilderTray = ({ type, setSaveClicked }) => {
 
 BuilderTray.propTypes = {
   type: PropTypes.string.isRequired,
-  setSaveClicked: PropTypes.bool.isRequired
+  setSaveClicked: PropTypes.func.isRequired
 };
 
 export default BuilderTray;

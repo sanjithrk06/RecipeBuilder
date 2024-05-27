@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { useDrag } from 'react-dnd';
 import { data } from '../data/data';
 import { useEffect, useState } from 'react';
+import { useRecipe } from '../context/RecipeContext';
 
 const ItemTypes = {
   INGREDIENT: 'ingredient',
@@ -43,6 +44,7 @@ Ingredient.propTypes = {
 const Sidebar = ({ type }) => {
   const [ingredients, setIngredients] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const { recipe } = useRecipe()
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -61,6 +63,22 @@ const Sidebar = ({ type }) => {
       ingredient.type === type &&
       ingredient.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const filteredSpicesIngredients = ingredients.filter(
+    (ingredient) =>
+      ingredient.type === 'spices' &&
+      ingredient.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      recipe.spices.some(spice => spice.toLowerCase() === ingredient.name.toLowerCase())
+  );
+
+  const filteredTrays = Object.entries(recipe.trays).map(([trayName, trayContents]) => {
+    const trayIngredients = trayContents.map(trayItem => {
+      const ingredient = ingredients.find(ing => ing.name.toLowerCase() === trayItem.ingredient.toLowerCase());
+      return ingredient;
+    }).filter(ingredient => ingredient !== undefined);
+    return { trayName, trayIngredients };
+  });
+  
 
   return (
     <div className="w-1/4 bg-white border border-gray-300 rounded-3xl m-2 p-4 overflow-hidden">
@@ -103,11 +121,52 @@ const Sidebar = ({ type }) => {
       </div>
 
       <div className="scroll-container">
-        <div className="grid grid-cols-3 gap-2">
-          {filteredIngredients.map((ingredient) => (
-            <Ingredient key={ingredient.id} ingredient={ingredient} />
-          ))}
-        </div>
+        
+          {type==='instructions' ? (
+            <>
+            {filteredIngredients.length>0 && <h2 className=' font-semibold italic text-xl p-2 my-2 mt-2'>Instructions</h2>}
+            <div className="grid grid-cols-3 gap-2">
+              {filteredIngredients.map((ingredient) => (
+                  <Ingredient key={ingredient.id} ingredient={ingredient} />
+                ))}
+            </div>
+            {filteredSpicesIngredients.length>0 && 
+              <>
+              <br />
+              <hr />
+              <h2 className=' font-semibold text-xl p-2 my-2 mt-2 italic'>Spices</h2>
+              </>
+            }
+            <div className="grid grid-cols-3 gap-2">
+              {filteredSpicesIngredients.map((ingredient) => (
+                  <Ingredient key={ingredient.id} ingredient={ingredient} />
+                ))}
+            </div>
+            {filteredTrays.length > 0 && 
+  filteredTrays.map(({ trayName, trayIngredients }, trayIndex) => (
+    <div key={trayIndex}>
+      <br />
+      <hr /> 
+      <h2 className='font-semibold text-xl p-2 my-2 mt-2 italic'>{trayName}</h2>
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        {trayIngredients.map((ingredient) => (
+          <Ingredient key={ingredient.id} ingredient={ingredient} />
+        ))}
+      </div>
+    </div>
+  ))
+}
+
+            
+            </>
+          ):(
+          <div className="grid grid-cols-3 gap-2">
+            {filteredIngredients.map((ingredient) => (
+                <Ingredient key={ingredient.id} ingredient={ingredient} />
+              ))}
+          </div>
+        
+        )}
       </div>
     </div>
   );

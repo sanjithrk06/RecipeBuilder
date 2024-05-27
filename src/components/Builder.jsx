@@ -105,7 +105,8 @@ const Builder = ({ type, setSaveClicked }) => {
         <div
           ref={drop}
           id='drop-box'
-          className={`flex items-center bg-[url('../assets/bg.jpg')] bg-cover bg-center justify-center border-2 border-dashed rounded-2xl ${isOver ? 'border-blue-500' : 'border-gray-300'} w-full h-[90%]`}
+          style={{ scrollbarWidth: 'none'}}
+          className={`flex items-center overflow-y-auto justify-center border-2 border-dashed rounded-2xl ${isOver ? 'border-blue-500' : 'border-gray-300'} w-full h-[90%]`}
         >
           <div className="p-4 pt-0 w-[95%] h-[90%]" style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center' }}>
             {droppedItems.length < 1 && (
@@ -167,7 +168,7 @@ const Builder = ({ type, setSaveClicked }) => {
 
 Builder.propTypes = {
   type: PropTypes.string.isRequired,
-  setSaveClicked: PropTypes.bool.isRequired
+  setSaveClicked: PropTypes.func.isRequired
 };
 
 export default Builder;
