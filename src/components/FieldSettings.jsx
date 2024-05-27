@@ -1,5 +1,40 @@
+import PropTypes from 'prop-types';
+import { useRecipe } from '../context/RecipeContext';
 
-const FieldSettings = () => {
+
+const FieldSettings = ({ type, onTypeChange, saveClicked }) => {
+    const { recipe } = useRecipe();
+
+    const handleDone = () => {
+        const recipeData = JSON.stringify(recipe);
+        const blob = new Blob([recipeData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'recipe.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleNext = () => {
+        if(type==='spices'){
+            onTypeChange('ingredients')
+        }else if(type==='ingredients'){
+            onTypeChange('instructions')
+        }
+    }
+
+    const handleBack = () => {
+        if(type==='ingredients'){
+            onTypeChange('spices')
+        }else if(type==='instructions'){
+            onTypeChange('ingredients')
+        }
+    }
+
+
   return (
     <div className="w-1/4 bg-white border border-gray-300 rounded-3xl m-2 p-6">
         <div className="mb-4 mt-4 p-2">
@@ -32,9 +67,47 @@ const FieldSettings = () => {
                 <label htmlFor="value" className="absolute top-2 left-1 z-10 origin-[0] -translate-y-4 scale-75 transform cursor-text select-none bg-white px-2 text-sm text-gray-500 duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 peer-focus:text-blue-600"> New Field Value *</label>
             </div>
             <p className=" p-1 text-[13px] font-normal text-gray-600">Enter a value or formula. Use double quotes for string values. <a href="#" className="text-[13px] text-blue-500 hover:underline">Learn More <i className="fa fa-external-link"></i></a></p>
+            <div className="flex justify-between m-2 mt-5">
+                {
+                    (type==='ingredients' || type==='instructions') && (
+                    <>
+                    <button onClick={handleBack} className="bg-blue-600  text-white p-2 px-4 py-1 pb-[0.4rem] w-auto rounded-xl flex items-center font-medium text-base">
+                        Back
+                    </button>
+                    </>
+                )}
+                {
+                    (type==='spices' || type==='ingredients') && (
+                    <>
+                        <button className="bg-transparent  text-white p-2 px-4 py-1 pb-[0.4rem] w-auto rounded-xl flex items-center font-medium text-base">
+                            
+                        </button>
+                        <button onClick={handleNext} disabled={!saveClicked} className={`bg-blue-600  text-white p-2 px-4 py-1 pb-[0.4rem] w-auto rounded-xl flex items-center font-medium text-base ${saveClicked ? '' : 'opacity-50'}`}>
+                            Next
+                        </button>
+                    </>
+                )}
+                {
+                    type==='instructions' && (
+                    <>
+                    <button className="bg-transparent  text-white p-2 px-4 py-1 pb-[0.4rem] w-auto rounded-xl flex items-center font-medium text-base">
+                        
+                    </button>
+                    <button onClick={handleDone} disabled={!saveClicked} className={`bg-blue-600  text-white p-2 px-4 py-1 pb-[0.4rem] w-auto rounded-xl flex items-center font-medium text-base ${saveClicked ? '' : 'opacity-50'}`}>
+                        Done
+                    </button>
+                    </>
+                )}
+            </div>
         </div>
     </div>
   );
+};
+
+FieldSettings.propTypes = {
+    type: PropTypes.string.isRequired,
+    onTypeChange: PropTypes.func.isRequired,
+    saveClicked: PropTypes.bool.isRequired
 };
 
 export default FieldSettings;

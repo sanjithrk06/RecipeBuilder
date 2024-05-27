@@ -1,36 +1,11 @@
 import PropTypes from 'prop-types';
 import { useDrag } from 'react-dnd';
-import {    
-  banana,
-  brinjal,
-  carrot,
-  chilly,
-  cucumber,
-  apple,
-  ginger,
-  mushroom,
-  orange,
-  pomegranate,
-  tomato
-} from '../assets/image'
+import { data } from '../data/data';
+import { useEffect, useState } from 'react';
 
 const ItemTypes = {
   INGREDIENT: 'ingredient',
 };
-
-const ingredients = [
-  { id: 1, name: 'Tomato', image: tomato },
-  { id: 2, name: 'Banana', image: banana },
-  { id: 3, name: 'Brinjal', image: brinjal },
-  { id: 4, name: 'Carrot', image: carrot },
-  { id: 5, name: 'Chilly', image: chilly },
-  { id: 6, name: 'Cucumber', image: cucumber },
-  { id: 7, name: 'Apple', image: apple },
-  { id: 8, name: 'Ginger', image: ginger },
-  { id: 9, name: 'Mushroom', image: mushroom },
-  { id: 10, name: 'Orange', image: orange },
-  { id: 11, name: 'Pomegranate', image: pomegranate },
-];
 
 const Ingredient = ({ ingredient }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -44,12 +19,14 @@ const Ingredient = ({ ingredient }) => {
   return (
     <div
       ref={drag}
-      className={`bg-gray-100 p-2 h-48 cursor-move rounded ${isDragging ? 'opacity-50' : 'opacity-100'}`}
+      className={`bg-gray-100 p-2 cursor-move rounded-2xl ${isDragging ? 'opacity-50' : 'opacity-100'}`}
     >
-      <div className=" w-full h-4/5">
-        <img src={ingredient.image} alt={ingredient.name} className="w-full h-full object-cover rounded" />
+      <div className="w-full">
+        <img src={ingredient.image} alt={ingredient.name} className={` w-full h-32 ${ingredient.type==='instructions' ? 'object-contain p-4 h-20': 'object-cover'} rounded-2xl `} />
       </div>
-      <p className="text-center mt-1 h-1/5">{ingredient.name}</p>
+      <p className="text-center mt-1 p-2 text-sm font-medium">
+        {ingredient.name}
+      </p>
     </div>
   );
 };
@@ -59,20 +36,52 @@ Ingredient.propTypes = {
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
     image: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
   }).isRequired,
 };
 
-const Sidebar = () => {
+const Sidebar = ({ type }) => {
+  const [ingredients, setIngredients] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setIngredients(data);
+    };
+
+    fetchEvents();
+  }, [type]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredIngredients = ingredients.filter(
+    (ingredient) =>
+      ingredient.type === type &&
+      ingredient.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="w-1/4 bg-white border border-gray-300 rounded-3xl m-2 p-4 overflow-hidden">
       <div className="mb-4">
-        <h1 className="text-3xl text-center italic font-semibold p-5">Ingredients</h1>
+        {type === 'spices' && (
+          <h1 className="text-3xl text-center italic font-semibold p-5">Spices</h1>
+        )}
+        {type === 'ingredients' && (
+          <h1 className="text-3xl text-center italic font-semibold p-5">Ingredients</h1>
+        )}
+        {type === 'instructions' && (
+          <h1 className="text-3xl text-center italic font-semibold p-5">Instructions</h1>
+        )}
         <div className="pt-2 relative mx-auto text-gray-600 w-full">
           <input
             className="border-2 border-gray-300 bg-white h-10 px-5 pr-16 rounded-lg text-sm focus:outline-none w-full"
             type="search"
             name="search"
             placeholder="Search"
+            value={searchQuery}
+            onChange={handleSearchChange}
           />
           <button type="submit" className="absolute right-0 top-0 mt-5 mr-4 ml-0">
             <svg
@@ -92,16 +101,20 @@ const Sidebar = () => {
           </button>
         </div>
       </div>
-      
+
       <div className="scroll-container">
         <div className="grid grid-cols-3 gap-2">
-          {ingredients.map((ingredient) => (
+          {filteredIngredients.map((ingredient) => (
             <Ingredient key={ingredient.id} ingredient={ingredient} />
           ))}
         </div>
       </div>
     </div>
   );
+};
+
+Sidebar.propTypes = {
+  type: PropTypes.string.isRequired,
 };
 
 export default Sidebar;
