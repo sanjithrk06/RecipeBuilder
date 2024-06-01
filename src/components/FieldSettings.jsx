@@ -16,6 +16,8 @@ const FieldSettings = ({ type, onTypeChange, saveClicked }) => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+
+        window.location.reload();
     };
 
     const handleNext = () => {
