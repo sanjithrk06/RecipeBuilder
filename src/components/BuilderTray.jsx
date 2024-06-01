@@ -6,6 +6,7 @@ import { RxZoomIn, RxZoomOut } from "react-icons/rx";
 import { HiDotsVertical } from "react-icons/hi";
 import PropTypes from 'prop-types';
 import { useRecipe } from '../context/RecipeContext';
+import ItemModal from './ItemModal';
 
 const ItemTypes = {
   INGREDIENT: 'ingredient',
@@ -16,6 +17,9 @@ const BuilderTray = ({ type, setSaveClicked }) => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [droppedItemsPerTray, setDroppedItemsPerTray] = useState({});
   const { updateTrays } = useRecipe();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState(null);
+  const [currentTray, setCurrentTray] = useState(null);
 
   useEffect(() => {
     setDroppedItemsPerTray({});
@@ -30,8 +34,8 @@ const BuilderTray = ({ type, setSaveClicked }) => {
         tray[`Tray ${Number(trayIndex) + 1}`] = droppedItemsPerTray[trayIndex].map(item => ({
           ingredient: item.name,
           variety: "Pureed",  
-          value: 80, 
-          unit: "ml"
+          value: item.value, 
+          unit: item.unit
         }));
         return tray;
       }, {}));
@@ -52,30 +56,29 @@ const BuilderTray = ({ type, setSaveClicked }) => {
     setHistory([]);
   };
 
-//   const handleRedo = () => {
-//     if (history.length > 0) {
-//       const addItem = history[0];
-//       setHistory(history.slice(1));
-//       setDroppedItems([...droppedItems, addItem]);
-//     }
-//   };
+  const handleModalCancel = () => {
+    setCurrentItem(null);
+    setCurrentTray(null);
+    setIsModalOpen(false);
+  };
 
-//   const handleUndo = () => {
-//     if (droppedItems.length > 0) {
-//       const prevItem = droppedItems[droppedItems.length - 1];
-//       setHistory([prevItem, ...history]);
-//       setDroppedItems(droppedItems.slice(0, -1));
-//     }
-//   };
+  const handleModalSave = (item) => {
+    setDroppedItemsPerTray((prevState) => ({
+      ...prevState,
+      [currentTray]: [...(prevState[currentTray] || []), item],
+    }));
+    setIsModalOpen(false);
+    setCurrentItem(null);
+    setCurrentTray(null);
+  };
 
   const renderDropBox = (index) => {
     const [{ isOver }, drop] = useDrop(() => ({
       accept: ItemTypes.INGREDIENT,
       drop: (item) => {
-        setDroppedItemsPerTray((prevState) => ({
-          ...prevState,
-          [index]: [...(prevState[index] || []), item.ingredient],
-        }));
+        setCurrentItem(item.ingredient);
+        setCurrentTray(index);
+        setIsModalOpen(true);
         console.log(`Dropped ${item.ingredient.name} in tray ${index}`);
       },
       collect: (monitor) => ({
@@ -167,6 +170,14 @@ const BuilderTray = ({ type, setSaveClicked }) => {
           </div>
         </div>
       </div>
+      { isModalOpen && (
+        <ItemModal
+          isOpen={isModalOpen}
+          item={currentItem}
+          onSave={handleModalSave}
+          onCancel={handleModalCancel}
+        />
+      )}
     </div>
   );
 };

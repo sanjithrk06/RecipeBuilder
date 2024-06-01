@@ -5,6 +5,7 @@ import { IoArrowRedoOutline, IoArrowUndoOutline } from "react-icons/io5";
 import { RxZoomIn, RxZoomOut } from "react-icons/rx";
 import { HiDotsVertical } from "react-icons/hi";
 import PropTypes from 'prop-types';
+import ItemModal from './ItemModal';
 import { useRecipe } from '../context/RecipeContext';
 
 const ItemTypes = {
@@ -17,8 +18,10 @@ const Builder = ({ type, setSaveClicked }) => {
   const [droppedItems, setDroppedItems] = useState([]);
   const [history, setHistory] = useState([]);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentItem, setCurrentItem ] = useState(null);
   const [droppedItemsPerTray, setDroppedItemsPerTray] = useState({});
-  const { recipe, updateSpices, updateTrays, updateInstructions } = useRecipe();
+  const { recipe, updateSpices, updateInstructions } = useRecipe();
 
   useEffect(() => {
     setDroppedItems([]);
@@ -29,7 +32,13 @@ const Builder = ({ type, setSaveClicked }) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ItemTypes.INGREDIENT,
     drop: (item) => {
-      setDroppedItems((prevItems) => [...prevItems, item.ingredient]);
+      if(type==='instructions'){
+        setCurrentItem(item.ingredient)
+        setIsModalOpen(true)
+        console.log(currentItem)
+      }else{
+        setDroppedItems((prevItems) => [...prevItems, item.ingredient]);
+      }
       console.log(`Dropped ${item.ingredient.name}`);
     },
     collect: (monitor) => ({
@@ -48,8 +57,8 @@ const Builder = ({ type, setSaveClicked }) => {
     } else if (type === 'instructions') {
       updateInstructions(droppedItems.map(item => ({
         command: item.name,
-        value: 100,
-        unit: "ml",
+        value: item.value,
+        unit: item.unit,
       })));
     }
     console.log('Saved to context:', droppedItems.map(item => item.name));
@@ -85,6 +94,17 @@ const Builder = ({ type, setSaveClicked }) => {
       setDroppedItems(droppedItems.slice(0, -1));
     }
   };
+
+  const handleModalCancel = () => {
+    setCurrentItem(null)
+    setIsModalOpen(false)
+  }
+
+  const handleModalSave = (item) => {
+    setDroppedItems((prevItem) => [...prevItem, item]);
+    setIsModalOpen(false)
+    setCurrentItem(null)
+  }
 
   return (
     <div className="w-2/4 bg-white border border-gray-300 rounded-3xl m-2 p-4">
@@ -162,6 +182,14 @@ const Builder = ({ type, setSaveClicked }) => {
           </div>
         </div>
       </div>
+      {type==='instructions' && isModalOpen && (
+        <ItemModal
+          isOpen={isModalOpen}
+          item={currentItem}
+          onSave={handleModalSave}
+          onCancel={handleModalCancel}
+        />
+      )}
     </div>
   );
 };
